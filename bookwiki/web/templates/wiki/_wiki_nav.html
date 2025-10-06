@@ -1,0 +1,31 @@
+{# Wiki secondary navigation bar #}
+<div class="grid">
+  <div>
+    <details class="dropdown">
+      <summary>
+        <span class="summary-label">
+          {{ available_chapters[current_chapter] | format_chapter_title }}
+        </span>
+      </summary>
+      <ul>
+        {% for chapter in available_chapters %}
+        <li>
+          <a href="{{ (chapter_nav_url_template or '') | replace('{chapter_id}', (chapter.id | string))}}">
+            {{ chapter | format_chapter_title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </details>
+  </div>
+  <div>
+    <form method="GET"
+      action="{% if current_chapter is defined %}{{ url_for('wiki.wiki_search', chapter_id=current_chapter) }}{% else %}{{ url_for('wiki.search_redirect') }}{% endif %}">
+      <fieldset role="group">
+        <input type="search" name="names"
+          value="{% if search_names is defined %}{{ search_names }}{% else %}{% endif %}"
+          placeholder="Search wiki pages...">
+      </fieldset>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Wiki Search{% endblock %}
+
+{% block content %}
+{% include 'wiki/_wiki_nav.html' %}
+
+{% if search_names %}
+{% if results and results.results %}
+{% set result_pages = [] %}
+{% set rank_score_text = [] %}
+{% for result in results.results %}
+{% set _ = result_pages.append(result.page) %}
+{% set _ = rank_score_text.append("Rank: " + result.rank|string + " Score: " + ("%.3f"|format(result.score))) %}
+{% endfor %}
+{% with pages=result_pages, chapter_id=current_chapter, additional_text=rank_score_text %}
+{% include 'components/_wiki_page_list.html' %}
+{% endwith %}
+{% else %}
+<section>
+  <p><em>No results found for "{{ search_names }}".</em></p>
+  <p>Try searching for different character names or terms.</p>
+</section>
+{% endif %}
+
+{% if results %}
+{% with current_page=results.results_page, total_pages=results.total_pages, base_url=url_for('wiki.wiki_search',
+chapter_id=current_chapter), extra_params={'names': search_names} %}
+{% include 'components/_pagination.html' %}
+{% endwith %}
+{% endif %}
+{% else %}
+<section>
+  <p>Use the search box above to find wiki pages by character names.</p>
+  <p>You can search for multiple names separated by commas.</p>
+</section>
+{% endif %}
+{% endblock %}

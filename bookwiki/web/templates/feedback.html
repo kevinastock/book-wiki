@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback Requests - FanWiki{% endblock %}
+
+{% block content %}
+
+{% if feedback_blocks %}
+{% for request in feedback_blocks %}
+<article>
+  <header>
+    <strong>Feedback Request #{{ request.id }}</strong>
+  </header>
+
+  <blockquote>{{ request.tool_params_json['request'] | markdown | safe }}</blockquote>
+  <form method="POST" action="{{ url_for('feedback.submit_feedback', block_id=request.id) }}">
+    <textarea name="response" placeholder="Type your response here..." rows="5" required></textarea>
+    <button type="submit">Submit Response</button>
+  </form>
+
+  <footer>
+    <small>
+      <a
+        href="{{ url_for('conversations.conversation_detail', conversation_id=request.conversation_id) }}#block-{{ request.id }}">
+        {{ request.create_time | format_local_datetime }}
+      </a>
+    </small>
+  </footer>
+</article>
+{% endfor %}
+{% else %}
+<p><em>No feedback requests found</em></p>
+{% endif %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const forms = document.querySelectorAll('article form');
+    const textareas = document.querySelectorAll('article form textarea');
+
+    function updateFormStates() {
+      // Check if any textarea has content
+      let activeTextarea = null;
+      textareas.forEach(textarea => {
+        if (textarea.value.trim()) {
+          activeTextarea = textarea;
+        }
+      });
+
+      // Update all forms based on whether there's an active textarea
+      forms.forEach(form => {
+        const textarea = form.querySelector('textarea');
+        const button = form.querySelector('button[type="submit"]');
+
+        if (activeTextarea && textarea !== activeTextarea) {
+          // Disable this form since another has text
+          textarea.disabled = true;
+          button.disabled = true;
+
+          // Save original placeholder if not already saved
+          if (!textarea.dataset.originalPlaceholder) {
+            textarea.dataset.originalPlaceholder = textarea.placeholder;
+          }
+          textarea.placeholder = 'Complete the other response first...';
+        } else {
+          // Enable this form
+          textarea.disabled = false;
+          button.disabled = false;
+
+          // Restore original placeholder
+          if (textarea.dataset.originalPlaceholder) {
+            textarea.placeholder = textarea.dataset.originalPlaceholder;
+          }
+        }
+      });
+    }
+
+    // Add input event listeners to all textareas
+    textareas.forEach(textarea => {
+      textarea.addEventListener('input', updateFormStates);
+    });
+  });
+</script>
+
+{% endblock %}

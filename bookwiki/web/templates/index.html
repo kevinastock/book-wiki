@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block head %}
+{% if bg_worker_status_value == "running" %}
+<meta http-equiv="refresh" content="60">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if stats.feedback_requests > 0 %}
+<article class="pico-background-amber-150">
+  <strong>There are {{ stats.feedback_requests }} feedback requests pending.</strong>
+  <br />
+  Review and respond to these requests to help improve the system's performance.
+</article>
+{% endif %}
+
+<article>
+  <header><strong>System Statistics</strong></header>
+  <table>
+    <tr>
+      <th>Total Input Tokens</th>
+      <td>{{ "{:,}".format(stats.total_input_tokens) }}</td>
+    </tr>
+    <tr>
+      <th>Total Output Tokens</th>
+      <td>{{ "{:,}".format(stats.total_output_tokens) }}</td>
+    </tr>
+    <tr>
+      <th>Feedback Requests</th>
+      <td>{{ stats.feedback_requests }}</td>
+    </tr>
+    <tr>
+      <th>Conversations: Waiting LLM</th>
+      <td>{{ stats.conversations_waiting_llm }}</td>
+    </tr>
+    <tr>
+      <th>Conversations: Waiting Tools</th>
+      <td>{{ stats.conversations_waiting_tools }}</td>
+    </tr>
+    <tr>
+      <th>Conversations: Ready</th>
+      <td>{{ stats.conversations_ready }}</td>
+    </tr>
+    <tr>
+      <th>Conversations: Finished</th>
+      <td>{{ stats.conversations_finished }}</td>
+    </tr>
+  </table>
+</article>
+
+<article>
+  <header><strong>Tool Usage Statistics</strong></header>
+  <table class="striped row-links">
+    <thead>
+      <tr>
+        <th>Tool Name</th>
+        <th>Times Used</th>
+        <th>Times Failed</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tool in tool_data %}
+      <tr onclick="row_link(event, '{{ url_for('tools.tool_usage', tool_name=tool.name) }}')">
+        <td><strong>{{ tool.name }}</strong></td>
+        <td>{{ tool.used }}</td>
+        <td>{{ tool.failed }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</article>
+
+<article>
+  <header><strong>Conversation Lengths</strong></header>
+  <table class="striped">
+    <thead>
+      <tr>
+        <th>Percentile</th>
+        <th>Tokens</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for label, value in conv_lengths %}
+      <tr>
+        <td>{{ label }}</td>
+        <td>{{ "{:,}".format(value) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</article>
+{% endblock %}

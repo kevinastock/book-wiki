@@ -1,0 +1,37 @@
+{# Reusable component for displaying a list of wiki pages #}
+{# Parameters: pages (list of wiki pages), chapter_id (required chapter id for URL generation), columns (optional,
+default 1), additional_text (optional list of text to display left of create block link, zipped with pages) #}
+
+{% set columns = columns|default(1) %}
+
+<section>
+  {% for row_start in range(0, pages|length, columns) %}
+  <div class="grid">
+    {% for col_idx in range(columns) %}
+    {% set page_idx = row_start + col_idx %}
+    <div>
+      {% if page_idx < pages|length %}
+      {% set page = pages[page_idx] %}
+      <article>
+        <header>
+          <strong>
+            <a href="{{ url_for('wiki.wiki_page', chapter_id=chapter_id, slug=page.slug) }}">{{ page.title }}</a>
+          </strong>
+        </header>
+        {{ page.summary }}
+        <footer>
+          <small>
+            {% if additional_text is defined and additional_text and page_idx < additional_text|length %} {{
+              additional_text[page_idx] }} {% endif %} <a
+              href="{{ url_for('conversations.conversation_detail', conversation_id=page.create_block.conversation_id) }}#block-{{ page.create_block_id }}">
+              Block {{ page.create_block_id }}
+              </a>
+          </small>
+        </footer>
+      </article>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>

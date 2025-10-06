@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Chapters{% endblock %}
+
+{% block content %}
+
+{% if chapters %}
+<table class="striped row-links">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Wiki Pages</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for chapter in chapters %}
+    <tr onclick="row_link(event, '{{ url_for('chapters.chapter_detail', chapter_id=chapter.id) }}')">
+      <td><strong>{{ chapter.id }}</strong></td>
+      <td>{{ chapter.title }}</td>
+      <td>
+        {% if chapter.wiki_count > 0 %}
+        {{ chapter.wiki_count }}
+        {% else %}
+        <small>0</small>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p><em>No chapters found in the database.</em></p>
+{% endif %}
+{% endblock %}

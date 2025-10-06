@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chapter | format_chapter_title }}{% endblock %}
+
+{% block content %}
+<article>
+  <header>
+    <h1>{{ chapter | format_chapter_title }}</h1>
+  </header>
+
+  {% if chapter.chapter_summary_page %}
+  <section>
+    <blockquote>
+      <small>
+        {{ chapter.chapter_summary_page.summary }}
+      </small>
+    </blockquote>
+
+    {{ chapter.chapter_summary_page.body | markdown_with_wiki_links(chapter.id) | safe }}
+  </section>
+  <hr />
+  {% endif %}
+
+  <section>
+    <table>
+      <tr>
+        <th>Chapter ID</th>
+        <td>{{ chapter.id }}</td>
+      </tr>
+      <tr>
+        <th>Conversation</th>
+        <td>
+          {% if chapter.conversation %}
+          <a href="{{ url_for('conversations.conversation_detail', conversation_id=chapter.conversation.id) }}">
+            Conversation #{{ chapter.conversation.id }}
+          </a>
+          {% else %}
+          <em>None</em>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>Wiki Pages Created</th>
+        <td>{{ chapter.created_pages|length }}</td>
+      </tr>
+      <tr>
+        <th>Wiki Pages Updated</th>
+        <td>{{ chapter.updated_pages|length }}</td>
+      </tr>
+    </table>
+  </section>
+
+  <section>
+    {% for paragraph in paragraphs %}
+    <p>{{ paragraph }}</p>
+    {% endfor %}
+  </section>
+
+  {% if chapter.created_pages %}
+  <section>
+    <h2>Wiki Pages Created ({{ chapter.created_pages|length }})</h2>
+    {% with pages=chapter.created_pages, chapter_id=chapter.id, columns=2 %}
+    {% include 'components/_wiki_page_list.html' %}
+    {% endwith %}
+  </section>
+  {% endif %}
+
+  {% if chapter.updated_pages %}
+  <section>
+    <h2>Wiki Pages Updated ({{ chapter.updated_pages|length }})</h2>
+    {% with pages=chapter.updated_pages, chapter_id=chapter.id, columns=2 %}
+    {% include 'components/_wiki_page_list.html' %}
+    {% endwith %}
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - Wiki{% endblock %}
+
+{% block content %}
+{% include 'wiki/_wiki_nav.html' %}
+
+<nav>
+  <ul>
+    <h1>{{ page.title }}</h1>
+  </ul>
+  <ul>
+    <li><a
+        href="{{ url_for('conversations.conversation_detail', conversation_id=page.create_block.conversation_id) }}#block-{{ page.create_block_id }}"
+        class="secondary" role="button">
+        Block #{{ page.create_block_id }}
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('wiki.wiki_history_list', chapter_id=chapter_id, slug=page.slug) }}" role="button">
+        History
+      </a>
+    </li>
+  </ul>
+</nav>
+
+{% if page.title == "" %}
+<article class="pico-background-red-400">
+  <strong>This page has been deleted.</strong>
+  <br />
+  The content has been removed due to redundancy or other editorial reasons.
+</article>
+{% endif %}
+
+{% if is_historical %}
+<article class="pico-background-amber-150">
+  <strong>This is a specific revision of this page.</strong>
+  <br />
+  <a href="{{ url_for('wiki.wiki_page', chapter_id=chapter_id, slug=page.slug) }}">
+    Click here for the current revision of this page.
+  </a>
+</article>
+{% endif %}
+
+<section>
+  <table>
+    <tr>
+      <th>First Chapter</th>
+      <td>
+        <a href="{{ url_for('chapters.chapter_detail', chapter_id=page.first_chapter.id) }}">
+          {{ page.first_chapter | format_chapter_title }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <th>Most Recent Chapter</th>
+      <td>
+        <a href="{{ url_for('chapters.chapter_detail', chapter_id=page.chapter.id) }}">
+          {{ page.chapter | format_chapter_title }}
+        </a>
+      </td>
+    </tr>
+  </table>
+</section>
+
+<blockquote>
+  <small>
+    {{ page.summary }}
+  </small>
+</blockquote>
+
+<strong>Known as:</strong>
+{% for name in page.names %}
+<code>{{ name }}</code>{% if not loop.last %}, {% endif %}
+{% endfor %}
+
+<hr />
+
+{{ page.body | markdown_with_wiki_links(chapter_id) | safe }}
+
+<hr />
+
+<small>Created {{ page.create_time | format_local_datetime }}</small>
+
+{% endblock %}

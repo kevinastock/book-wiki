@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Conversation #{{ conversation.id }}{% endblock %}
+
+{% block content %}
+
+<article>
+  <header>
+    <strong>Conversation #{{ conversation.id }}:</strong>
+    {{ conversation.status.value }}
+  </header>
+  <table>
+    <tr>
+      <th>Chapter</th>
+      <td>
+        {% with chapter_id = conversation.chapter.id,
+        chapter_title = (conversation.chapter | format_chapter_title) %}
+        {% if chapter_id is not none %}
+        <a href="{{ url_for('chapters.chapter_detail', chapter_id=chapter_id) }}">
+          {% if chapter_title %}{{ chapter_title }}{% else %}Chapter {{
+          chapter_id }}{% endif %}
+        </a>
+        {% else %}
+        <em>None</em>
+        {% endif %}
+        {% endwith %}
+      </td>
+    </tr>
+    <tr>
+      <th>Prompt</th>
+      <td>
+        {% with prompt_key = conversation | get_conversation_prompt_key %}
+        {% if prompt_key %}
+        <a href="{{ url_for('prompts.prompt_detail', key=prompt_key) }}">{{ prompt_key }}</a>
+        {% else %}
+        <em>None</em>
+        {% endif %}
+        {% endwith %}
+      </td>
+    </tr>
+    <tr>
+      <th>Parent Block</th>
+      <td>
+        {% if conversation.parent_block_id %}
+        <a
+          href="{{ url_for('conversations.conversation_detail', conversation_id=conversation.parent_block.conversation_id) }}#block-{{ conversation.parent_block_id }}">#{{
+          conversation.parent_block_id }}</a>
+        {% else %}
+        <em>None</em>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>Waiting On</th>
+      <td>
+        {% if conversation.waiting_on_id %}
+        <code onclick="navigator.clipboard.writeText('{{ conversation.waiting_on_id|e }}')">
+          {{ conversation.waiting_on_id }}
+        </code>
+        <a target="_blank" rel="noopener noreferrer"
+          href="https://platform.openai.com/logs/{{ conversation.waiting_on_id|e }}">
+          OpenAI
+        </a>
+        {% else %}
+        <em>None</em>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>Previous Context</th>
+      <td>
+        {% if conversation.previously %}
+        <code onclick="navigator.clipboard.writeText('{{ conversation.previously|e }}')">
+          {{ conversation.previously }}
+        </code>
+        <a target="_blank" rel="noopener noreferrer"
+          href="https://platform.openai.com/logs/{{ conversation.previously|e }}">
+          OpenAI
+        </a>
+        {% else %}
+        <em>None</em>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>Tokens</th>
+      <td>{{ conversation.total_input_tokens }} in, {{ conversation.total_output_tokens }} out, {{
+        conversation.current_tokens }} current</td>
+    </tr>
+    <tr>
+      <th>Blocks</th>
+      <td>{{ conversation.stats.block_count }} total, {{ conversation.stats.sent_blocks }} sent, {{
+        conversation.stats.blocks_ready_to_send }} ready, {{
+        conversation.stats.blocks_waiting_responses }} waiting</td>
+    </tr>
+  </table>
+
+  {% if conversation.children %}
+  {% set conversations = conversation.children %}
+  {% include 'conversations/_conversations_table.html' %}
+  {% endif %}
+</article>
+
+<section>
+  <h2>Conversation Flow ({{ conversation.blocks|length }} blocks)</h2>
+
+  {% for block in conversation.blocks %}
+  {% if not loop.first and block.generation != loop.previtem.generation %}
+  <hr />
+  {% endif %}
+
+  {% with show_conversation_link=False %}
+  {% include 'components/_block_display.html' %}
+  {% endwith %}
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration{% endblock %}
+
+{% block content %}
+
+{% if chapter_count == 0 %}
+<article>
+  <header><strong>Load Chapters</strong></header>
+
+  <p>Upload a compressed JSON file (.bz2 or .tar.bz2) containing chapter data.</p>
+
+  <form method="POST" action="{{ url_for('config.upload_chapters') }}" enctype="multipart/form-data">
+    <input type="file" id="file" name="file" accept=".bz2,.tar.bz2" required>
+    <button type="submit">Upload and Load Chapters</button>
+  </form>
+</article>
+{% endif %}
+
+<article>
+  <header><strong>Background Worker:</strong> {{ bg_worker_status_value|title }}</header>
+
+  <p>The background worker performs periodic processing tasks. When paused, it will not perform any work.</p>
+
+  {% if bg_worker_status_value in ['initialized', 'running', 'paused'] %}
+  <form method="POST" action="{{ url_for('config.toggle_worker') }}">
+    <button type="submit">
+      {% if bg_worker_status_value == 'paused' %}
+      Resume Worker
+      {% elif bg_worker_status_value == 'initialized' %}
+      Start Worker
+      {% else %}
+      Pause Worker
+      {% endif %}
+    </button>
+  </form>
+
+  {% if bg_worker_status_value in ['running', 'paused'] %}
+  <form method="POST" action="{{ url_for('config.kill_worker') }}"
+    onsubmit="return confirm('Are you sure you want to kill the worker thread? This action cannot be undone.');">
+    <button type="submit">Kill Worker</button>
+  </form>
+  {% endif %}
+
+  {% elif bg_worker_status_value == 'complete' %}
+  <p><em>All processing has been completed successfully.</em></p>
+  {% elif bg_worker_status_value == 'dead' %}
+  <p><em>The worker thread has died unexpectedly. Please restart the application.</em></p>
+  {% endif %}
+</article>
+
+<article>
+  <header><strong>OpenAI Configuration</strong></header>
+
+  <form method="POST" action="{{ url_for('config.update_openai') }}">
+    <fieldset>
+      <label for="model">Model:</label>
+      <select id="model" name="model">
+        {% for model in enum_options.models %}
+        <option value="{{ model.value }}" {% if model==openai_config.model %}selected{% endif %}>
+          {{ model.value }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <label for="verbosity">Verbosity:</label>
+      <select id="verbosity" name="verbosity">
+        {% for level in enum_options.verbosity_levels %}
+        <option value="{{ level.value }}" {% if level==openai_config.verbosity %}selected{% endif %}>
+          {{ level.value }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <label for="reasoning_effort">Reasoning Effort:</label>
+      <select id="reasoning_effort" name="reasoning_effort">
+        {% for effort in enum_options.reasoning_efforts %}
+        <option value="{{ effort.value }}" {% if effort==openai_config.reasoning_effort %}selected{% endif %}>
+          {{ effort.value }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <label for="service_tier">Service Tier:</label>
+      <select id="service_tier" name="service_tier">
+        {% for tier in enum_options.service_tiers %}
+        <option value="{{ tier.value }}" {% if tier==openai_config.service_tier %}selected{% endif %}>
+          {{ tier.value }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <label for="timeout_minutes">Timeout (minutes):</label>
+      <input type="number" id="timeout_minutes" name="timeout_minutes" value="{{ openai_config.timeout_minutes|string }}"
+        min="5" max="1440" required>
+
+      <label for="compression_threshold">Compression Threshold (tokens):</label>
+      <input type="number" id="compression_threshold" name="compression_threshold"
+        value="{{ openai_config.compression_threshold|string }}" min="1000" max="1000000" required>
+      <small>Conversations longer than this token count will be compressed before sending to the LLM</small>
+    </fieldset>
+
+    <button type="submit">Update OpenAI Configuration</button>
+  </form>
+</article>
+
+<article>
+  <header><strong>System Prompt</strong></header>
+  <form method="POST" action="{{ url_for('config.update_system_prompt') }}">
+    <textarea id="system_prompt" name="system_prompt" rows="10" required>{{ prompts.system_prompt }}</textarea>
+    <button type="submit">Update System Prompt</button>
+  </form>
+</article>
+
+<article>
+  <header><strong>Chapter Prompt</strong></header>
+  <form method="POST" action="{{ url_for('config.update_chapter_prompt') }}">
+    <textarea id="chapter_prompt" name="chapter_prompt" rows="10" required>{{ prompts.chapter_prompt }}</textarea>
+    <button type="submit">Update Chapter Prompt</button>
+  </form>
+</article>
+
+<article>
+  <header><strong>Compress Prompt</strong></header>
+  <form method="POST" action="{{ url_for('config.update_compress_prompt') }}">
+    <textarea id="compress_prompt" name="compress_prompt" rows="10" required>{{ prompts.compress_prompt }}</textarea>
+    <button type="submit">Update Compress Prompt</button>
+  </form>
+</article>
+{% endblock %}

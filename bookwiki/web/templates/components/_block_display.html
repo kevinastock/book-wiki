@@ -1,0 +1,85 @@
+{# Reusable component for displaying a single block #}
+{# Parameters:
+- block: Block object to display
+- show_conversation_link: Whether to show link to parent conversation (default: True)
+#}
+
+{% set show_conversation_link = show_conversation_link|default(True) %}
+
+<article id="block-{{ block.id }}" class="flag"
+  data-flag="{% if block.text_role == 'assistant' %}assistant-text{% elif block.text_role == 'user' %}user-text{% elif block.tool_name and block.errored %}errored-tool{% elif block.tool_name and block.tool_response %}responded-tool{% elif block.tool_name %}unresponded-tool{% endif %}">
+
+  {% if block.text_role %}
+  <header>
+    {% if show_conversation_link %}
+    <a
+      href="{{ url_for('conversations.conversation_detail', conversation_id=block.conversation_id) }}#block-{{ block.id }}">
+      <strong>{{ block.text_role|capitalize }}</strong>
+    </a>
+    {% else %}
+    <a href="#block-{{ block.id }}"><strong>{{ block.text_role|capitalize }}</strong></a>
+    {% endif %}
+    {% if not block.sent %}
+    <mark>Queued</mark>
+    {% endif %}
+  </header>
+  <div>
+    {{ block.text_body|replace('\n', '<br>')|safe }}
+  </div>
+
+  {% elif block.tool_name %}
+  <header>
+    {% if show_conversation_link %}
+    <a
+      href="{{ url_for('conversations.conversation_detail', conversation_id=block.conversation_id) }}#block-{{ block.id }}">
+      <strong>{{ block.tool_name }}</strong>
+    </a>
+    {% else %}
+    <a href="#block-{{ block.id }}"><strong>{{ block.tool_name }}</strong></a>
+    {% endif %}
+    {% if not block.sent %}
+    <mark>Queued</mark>
+    {% endif %}
+  </header>
+
+  <div class="codeblock has-wrap">
+    <details class="wrap-switch" title="Toggle line wrap" open>
+      <summary><span class="sr-only">Toggle line wrap</span></summary>
+    </details>
+
+    {% if block.tool_params_json %}
+    <pre><code>{{ block.tool_params_json | tojson(indent=2) }}</code></pre>
+    {% else %}
+    <pre><code>{{ block.tool_params }}</code></pre>
+    {% endif %}
+
+  </div>
+  {% if block.tool_response %}
+  <hr />
+  <div class="codeblock has-wrap">
+    <details class="wrap-switch" title="Toggle line wrap" open>
+      <summary><span class="sr-only">Toggle line wrap</span></summary>
+    </details>
+
+    <pre><code>{{ block.tool_response }}</code></pre>
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+  <footer>
+    {% with links = block | extract_block_links %}
+    {% if links %}
+    {% for (link_type, link_url) in links %}
+    <a href="{{ link_url }}"><small>View {{ link_type|capitalize }}</small></a>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% if show_conversation_link %}
+    <a href="{{ url_for('conversations.conversation_detail', conversation_id=block.conversation_id) }}">
+      <small>Conversation #{{ block.conversation_id }}</small>
+    </a>
+    {% endif %}
+    <small>{{ block.create_time | format_local_datetime }}</small>
+  </footer>
+</article>

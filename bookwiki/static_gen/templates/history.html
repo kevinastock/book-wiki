@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}History: {{ slug }}{% endblock %}
+
+{% block head %}
+{% include "pagefind.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h1>{{ page_title }}</h1>
+  <p class="text-muted">Version history</p>
+</div>
+
+<ul style="list-style: none; padding-left: 0;">
+  {% for version in versions %}
+  <li>
+    <a href="{{ base_url }}/wiki/{{ version.chapter_id }}/{{ slug }}">
+      {{ version.chapter_title }}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

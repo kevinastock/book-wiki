@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - Wiki{% endblock %}
+
+{% block head %}
+{% include "pagefind.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <h1 data-pagefind-weight="10">{{ page.title }}</h1>
+</div>
+
+{% if page.title == "" %}
+<div class="alert alert-danger" role="alert" data-pagefind-ignore>
+  <strong>This page has been deleted.</strong>
+  <br />
+  The content has been removed due to redundancy or other editorial reasons.
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-md-8">
+    {{ page.body_html | safe }}
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="mb-3">
+          <strong data-pagefind-ignore>Summary:</strong>
+          <div class="text-muted">{{ page.summary_html | safe }}</div>
+        </div>
+
+        <div class="mb-3" data-pagefind-ignore>
+          <strong>First seen:</strong><br>
+          <a href="{{ base_url }}/wiki/{{ page.first_chapter_id }}">{{ page.first_chapter_title }}</a>
+        </div>
+
+        <div class="mb-3" data-pagefind-ignore>
+          <strong>Most recently seen:</strong><br>
+          <a href="{{ base_url }}/wiki/{{ page.chapter_id }}">{{ page.chapter_title }}</a>
+        </div>
+
+        <div class="mb-3">
+          <strong data-pagefind-ignore>Known as:</strong><br>
+          {% for name in page.names %}
+          <span class="badge bg-secondary me-1 mb-1" data-pagefind-weight="7">{{ name }}</span>{% endfor %}
+        </div>
+
+        <hr class="mb-3">
+
+        <div data-pagefind-ignore>
+          <a href="{{ base_url }}/wiki/{{ chapter_id }}/{{ page.slug }}/history/" class="text-decoration-none">
+            View history
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

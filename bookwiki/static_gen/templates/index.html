@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8 mt-4">
+
+    <div class="alert alert-warning mb-4">
+      <h4 class="alert-heading">⚠️ AI-Generated Content</h4>
+      <p class="mb-0">This wiki is lovingly crafted by an AI agent. While it tried its best, there are certainly some
+        inaccuracies and creative interpretations. Hopefully it's still helpful.</p>
+    </div>
+
+    <h1 class="display-4 mb-4">{{ site_title }}</h1>
+    <p class="lead mb-5">A spoiler-free guide to <em>{{ content_name }}</em>. Select your <strong>last-read
+        chapter</strong> above.</p>
+
+    <section class="mb-5">
+      <h2 class="h4 mb-3">What this is</h2>
+      <p>This wiki shows only the characters, places, and events you've already encountered.
+        There will not (or at least, should not) be spoilers of anything beyond the chapter you select.</p>
+    </section>
+
+    <section class="mb-5">
+      <h2 class="h4 mb-3">How it works</h2>
+      <ol>
+        <li>Select your last-read chapter from the menu above.</li>
+        <li>All pages filter to only information up to your selected chapter.</li>
+        <li>Change the current chapter anytime.</li>
+        <li>Search is limited to returning wiki pages as of the currently selected chapter.</li>
+      </ol>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

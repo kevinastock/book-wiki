@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Wiki Pages{% endblock %}
+
+{% block content %}
+{% include 'wiki/_wiki_nav.html' %}
+
+{% if pages %}
+{% with chapter_id=current_chapter, columns=3 %}
+{% include 'components/_wiki_page_list.html' %}
+{% endwith %}
+{% else %}
+<p><em>No wiki pages found</em></p>
+{% endif %}
+{% endblock %}

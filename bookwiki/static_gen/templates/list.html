@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Wiki Pages - Chapter {{ chapter_id }}{% endblock %}
+
+{% block head %}
+{% include "pagefind.html" %}
+{% endblock %}
+
+{% block content %}
+{% if show_404_alert %}
+<div class="alert alert-danger mb-4">
+  <h4 class="alert-heading">🚫 Page Not Found (404)</h4>
+  <p class="mb-0">The wiki page you were looking for could not be found in this chapter. Below is the summary of the
+    current chapter.</p>
+</div>
+{% endif %}
+
+{% if chapter_summary_page %}
+<section class="mb-5">
+  <div class="mb-3">
+    <h1 data-pagefind-weight="10">{{ chapter_summary_page.title }}</h1>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="text-muted">{{ chapter_summary_page.summary_html | safe }}</div>
+    </div>
+  </div>
+
+  {{ chapter_summary_page.body_html | safe }}
+</section>
+{% endif %}
+
+{% if pages %}
+<section>
+  <h2>Wiki Pages</h2>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for page in pages %}
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{{ base_url }}/wiki/{{ chapter_id }}/{{ page.slug }}/" class="text-decoration-none">{{ page.title }}</a>
+          </h5>
+          <div class="card-text">{{ page.summary_html | safe }}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<div class="alert alert-info" role="alert">
+  <em>No wiki pages found</em>
+</div>
+{% endif %}
+{% endblock %}

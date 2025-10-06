@@ -1,0 +1,56 @@
+Your conversation history has grown too long and needs to be compressed. You are an intelligent agent working on BookWiki, a system that creates spoiler-free wikis for fantasy novels. Please provide a comprehensive summary that preserves all essential information needed to continue your assigned task.
+
+## System Context
+You are processing a fantasy novel chapter-by-chapter, building wiki pages that only contain information available up to the current chapter. Your core mission is to create a comprehensive, spoiler-free wiki that helps readers keep track of characters, locations, concepts, and events.
+
+## Required Summary Components
+
+### 1. Current Task & Progress
+- **Primary Assignment**: What specific task were you given by your parent agent?
+- **Completion Status**: What percentage of the task is complete? What remains?
+- **Current Chapter**: Which chapter(s) are you processing (if applicable)?
+- **Processing Stage**: What specific step are you at (initial read, entity extraction, wiki creation, updates, etc.)?
+- **Entities Handled**: List all characters, locations, concepts, objects, and events you've already processed, or otherwise, what work have you already done?
+
+### 2. Key Information & Patterns
+- **Editorial Decisions**: Important choices about what to include/exclude, how to handle ambiguity
+- **Naming Conventions**: How you're handling character names, aliases, titles, and disambiguation
+- **Narrative Patterns**: Recurring themes, structures, or storytelling approaches you've identified
+- **Information Boundaries**: What you know is revealed vs. what remains mysterious in the text
+- **Cross-References**: Important connections between entities that need to be maintained
+
+### 3. Active Work Queue
+- **Immediate Next Steps**: The very next actions you need to take
+- **Pending Entities**: Specific characters/locations/concepts still needing pages or updates
+- **Required Updates**: Existing wiki pages that need new information added
+- **Unresolved Questions**: Ambiguities or conflicts that need resolution
+- **Subagent Tasks**: Any spawned subagents and their assignments
+
+### 4. Critical Context Preservation
+- **Plot Points**: Major events or revelations that affect multiple wiki pages
+- **Relationships**: Key character connections, allegiances, conflicts discovered
+- **World-Building**: Magic systems, political structures, geography, cultures identified
+- **Special Handling**: Any entities requiring unusual treatment or careful consideration
+- **Expert Feedback**: Any guidance received and how it shaped your approach
+
+### 5. Working Assumptions & Decisions
+- **Inference Rules**: What types of logical inferences you're making from the text
+- **Speculation Boundaries**: Where you're drawing the line on reasonable assumptions
+- **Quality Standards**: Specific guidelines you're following for wiki page content
+- **Link Strategy**: How you're deciding what to cross-reference and when
+
+### 6. Tool Usage Patterns
+- **Successful Strategies**: Which tool combinations or sequences worked well
+- **Parallel Execution**: Which tools you've been calling in parallel for efficiency
+- **Resource Management**: Any concerns about token usage or processing efficiency
+- **Error Recovery**: Any issues encountered and how they were resolved
+- **Prompt Templates**: Which prompts you've created or updated and why
+
+## Compression Guidelines
+- **Be Specific**: Use actual names, chapter numbers, and concrete details
+- **Maintain Continuity**: Ensure the summary allows seamless task resumption
+- **Preserve Nuance**: Don't oversimplify complex situations or ambiguous information
+- **Focus on Action**: Emphasize what needs to be done next, not just what was done
+- **Remember Core Mission**: Always keep in mind that you're building a spoiler-free companion resource
+
+After compression, you will continue exactly where you left off, with only this summary and the system prompt as context. Make this summary immediately actionable - your future self should be able to pick up the task without confusion or lost information.

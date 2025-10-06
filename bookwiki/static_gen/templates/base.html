@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+  <title>{% block title %}Wiki{% endblock %}</title>
+  <link rel="stylesheet" href="{{ base_url }}/bootstrap.min.css">
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="{{ base_url }}/wiki">{{ site_title }}</a>
+      {% if chapter_id is defined %}
+      <a class="nav-link" href="{{ base_url }}/wiki/{{ chapter_id }}">Chapter Summary</a>
+      {% endif %}
+      {% if chapters is defined and current_chapter_title is defined %}
+      <div class="navbar-nav ms-auto">
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            {{ current_chapter_title }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li class="px-3 py-2">
+              <input type="text" class="form-control" id="chapterSearch" placeholder="Search chapters..." autocomplete="off">
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            {% for chapter in chapters %}
+            <li><a class="dropdown-item" href="{{ chapter.url }}">{{ chapter.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  {% if chapter_id is defined %}
+  <section class="container my-4">
+    <div id="search"></div>
+  </section>
+  {% endif %}
+
+  <main class="container" data-pagefind-body>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container text-center">
+    <hr />
+
+    <small>📚</small>
+  </footer>
+
+  <script src="{{ base_url }}/bootstrap.bundle.min.js"></script>
+  {% if chapters is defined %}
+  <script src="{{ base_url }}/dropdown-search.js"></script>
+  {% endif %}
+</body>
+
+</html>

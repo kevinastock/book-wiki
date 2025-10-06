@@ -1,0 +1,27 @@
+{# Reusable conversations table component #}
+{# Parameters: conversations (list) #}
+
+<table class="striped row-links">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Status</th>
+      <th>Prompt</th>
+      <th>Blocks</th>
+      <th>Input Tokens</th>
+      <th>Output Tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for conv in conversations %}
+    <tr onclick="row_link(event, '{{ url_for('conversations.conversation_detail', conversation_id=conv.id) }}')">
+      <td><strong>#{{ conv.id }}</strong></td>
+      <td>{{ conv.status.value }}</td>
+      <td>{{ conv | get_conversation_prompt_key or "<em>None</em>" | safe }}</td>
+      <td>{{ conv.stats.block_count }}</td>
+      <td>{{ conv.total_input_tokens if conv.total_input_tokens else 0 }}</td>
+      <td>{{ conv.total_output_tokens if conv.total_output_tokens else 0 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

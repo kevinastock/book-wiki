@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Prompts{% endblock %}
+
+{% block content %}
+
+{% if prompts %}
+<table class="striped row-links">
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Summary</th>
+      <th>Versions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for prompt in prompts %}
+    <tr onclick="row_link(event, '{{ url_for('prompts.prompt_detail', key=prompt.key) }}')">
+      <td><strong>{{ prompt.key }}</strong></td>
+      <td>{{ prompt.summary }}</td>
+      <td>{{ prompt.version_count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p><em>No prompts found</em></p>
+{% endif %}
+{% endblock %}

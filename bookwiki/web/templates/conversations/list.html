@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Conversations{% endblock %}
+
+{% block content %}
+
+{% if conversations %}
+{% include 'conversations/_conversations_table.html' %}
+{% else %}
+<p><em>No conversations found</em></p>
+{% endif %}
+{% endblock %}

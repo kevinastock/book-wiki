@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tool_name }} Usage{% endblock %}
+
+{% block content %}
+
+<article>
+  <header><strong>{{ tool_name }} Usage Statistics</strong></header>
+  <table>
+    <tr>
+      <th>Total Invocations</th>
+      <td>{{ total_count }}</td>
+    </tr>
+    <tr>
+      <th>Successful Uses</th>
+      <td>{{ stats.used }}</td>
+    </tr>
+    <tr>
+      <th>Failed Uses</th>
+      <td>{{ stats.failed }}</td>
+    </tr>
+  </table>
+</article>
+
+{% if blocks %}
+<section>
+  <h2>Tool Invocations ({{ total_count }} total)</h2>
+
+  {% for block in blocks %}
+  {% if not loop.first %}
+  <hr />
+  {% endif %}
+
+  {% with show_conversation_link=True %}
+  {% include 'components/_block_display.html' %}
+  {% endwith %}
+  {% endfor %}
+</section>
+
+{% with current_page=current_page, total_pages=total_pages, base_url=url_for('tools.tool_usage', tool_name=tool_name),
+extra_params={} %}
+{% include 'components/_pagination.html' %}
+{% endwith %}
+
+{% else %}
+<section>
+  <p><em>No invocations of {{ tool_name }} found.</em></p>
+</section>
+{% endif %}
+
+{% endblock %}

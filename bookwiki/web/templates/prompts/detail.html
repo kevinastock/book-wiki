@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}{{ versions[0].key }} - Prompt{% endblock %}
+
+{% block content %}
+
+{% for version in versions %}
+<article id="block-{{ version.create_block_id }}" class="flag"
+  data-flag="{% if loop.first %}current-prompt{% else %}old-prompt{% endif %}">
+  <header>
+    <strong>{{ version.key }}</strong>
+  </header>
+
+  <p>{{ version.summary }}</p>
+
+  {% if version.template.get_identifiers() %}
+  <hr />
+  <p>
+    {% for variable in version.template.get_identifiers() %}
+    <code>${{ variable }}</code>
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  <hr />
+
+  <div class="codeblock has-wrap">
+    <details class="wrap-switch" title="Toggle line wrap" open>
+      <summary><span class="sr-only">Toggle line wrap</span></summary>
+    </details>
+
+    <pre><code>{{ version.template.template }}</code></pre>
+  </div>
+
+  <footer>
+    {% if version.create_block.conversation_id %}
+    <a
+      href="{{ url_for('conversations.conversation_detail', conversation_id=version.create_block.conversation_id) }}#block-{{ version.create_block_id }}">
+      View Source
+    </a>
+    {% endif %}
+    <small>Created: {{ version.create_time | format_local_datetime }}</small>
+  </footer>
+</article>
+{% endfor %}
+{% endblock %}
