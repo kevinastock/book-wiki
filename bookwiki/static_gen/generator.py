@@ -6,6 +6,7 @@ import asyncio
 import logging
 import shutil
 import sqlite3
+import textwrap
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,30 @@ from bookwiki.models.wikipage import WikiPage
 from bookwiki.utils import extract_wiki_links
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_INDEX_CONTENT_MARKDOWN = """
+## What this is
+
+This wiki shows only the characters, places, and events you've already
+encountered. There will not (or at least, should not) be spoilers of anything
+beyond the chapter you select.
+
+## How it works
+
+1. Select your last-read chapter from the menu above.
+2. All pages filter to only information up to your selected chapter.
+3. Change the current chapter anytime.
+4. Search is limited to returning wiki pages as of the currently selected
+   chapter.
+""".strip()
+
+
+def render_index_markdown(markdown_text: str) -> str:
+    """Convert Markdown intro copy into HTML with light post-processing."""
+    cleaned = textwrap.dedent(markdown_text).strip()
+    html: str = markdown.markdown(cleaned)
+    html = html.replace("<h2>", '<h2 class="h4 mb-3">')
+    return html
 
 
 def format_chapter_title(chapter: Chapter | ChapterName) -> str:
@@ -167,6 +192,7 @@ class StaticSiteGenerator:
         output_dir: str,
         site_title: str,
         content_name: str,
+        index_content_markdown: str | None = None,
         max_chapters: int | None = None,
         enable_playground: bool = False,
         base_url: str = "",
@@ -178,6 +204,7 @@ class StaticSiteGenerator:
             output_dir: Directory to write static files
             site_title: Title for the site navigation bar
             content_name: Name of the content covered in this wiki
+            index_content_markdown: Markdown content for the index page body
             max_chapters: Maximum number of chapters to process (None for all)
             enable_playground: Whether to enable Pagefind playground files
             base_url: Base URL to prepend to all generated links (e.g., '/mysite')
@@ -187,6 +214,12 @@ class StaticSiteGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.site_title = site_title
         self.content_name = content_name
+        selected_markdown = (
+            index_content_markdown
+            if index_content_markdown is not None
+            else DEFAULT_INDEX_CONTENT_MARKDOWN
+        )
+        self.index_content_html = render_index_markdown(selected_markdown)
         self.max_chapters = max_chapters
         self.enable_playground = enable_playground
         self.base_url = base_url.rstrip("/")  # Remove trailing slash if present
@@ -238,6 +271,7 @@ class StaticSiteGenerator:
             site_title=self.site_title,
             content_name=self.content_name,
             base_url=self.base_url,
+            index_content_html=self.index_content_html,
         )
 
         wiki_dir = self.output_dir / "wiki"
@@ -697,6 +731,10 @@ def main() -> None:
         help="Name of the content covered in this wiki (default: this content)",
     )
     parser.add_argument(
+        "--index-content-markdown",
+        help="Path to a markdown file that overrides the wiki index page content",
+    )
+    parser.add_argument(
         "--max-chapters",
         type=int,
         help="Only process the first N chapters (default: all chapters)",
@@ -714,6 +752,16 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    index_content_markdown = DEFAULT_INDEX_CONTENT_MARKDOWN
+    if args.index_content_markdown:
+        override_path = Path(args.index_content_markdown).expanduser()
+        try:
+            index_content_markdown = override_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            parser.error(
+                f"Failed to read index content markdown file '{override_path}': {exc}"
+            )
+
     # Configure logging
     logging.basicConfig(
         level=logging.INFO if args.verbose else logging.WARNING,
@@ -722,13 +770,14 @@ def main() -> None:
 
     # Generate the site
     generator = StaticSiteGenerator(
-        args.db,
-        args.output_dir,
-        args.title,
-        args.content_name,
-        args.max_chapters,
-        args.playground,
-        args.baseurl,
+        db_path=args.db,
+        output_dir=args.output_dir,
+        site_title=args.title,
+        content_name=args.content_name,
+        index_content_markdown=index_content_markdown,
+        max_chapters=args.max_chapters,
+        enable_playground=args.playground,
+        base_url=args.baseurl,
     )
     generator.generate()
 

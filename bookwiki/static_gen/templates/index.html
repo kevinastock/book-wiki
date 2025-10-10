@@ -37,19 +37,7 @@
     {% endif %}
 
     <section class="mb-5">
-      <h2 class="h4 mb-3">What this is</h2>
-      <p>This wiki shows only the characters, places, and events you've already encountered.
-        There will not (or at least, should not) be spoilers of anything beyond the chapter you select.</p>
-    </section>
-
-    <section class="mb-5">
-      <h2 class="h4 mb-3">How it works</h2>
-      <ol>
-        <li>Select your last-read chapter from the menu above.</li>
-        <li>All pages filter to only information up to your selected chapter.</li>
-        <li>Change the current chapter anytime.</li>
-        <li>Search is limited to returning wiki pages as of the currently selected chapter.</li>
-      </ol>
+      {{ index_content_html|safe }}
     </section>
 
   </div>
