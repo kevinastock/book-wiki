@@ -265,6 +265,7 @@ class StaticSiteGenerator:
                 {
                     "title": page.title,
                     "slug": page.slug,
+                    "updated_in_chapter": page.chapter_id == chapter.id,
                     "summary_html": markdown_summary_with_static_wiki_links(
                         page.summary, chapter.url_id, self.base_url
                     ),
@@ -553,6 +554,7 @@ class StaticSiteGenerator:
                 {
                     "title": page.title,
                     "slug": page.slug,
+                    "updated_in_chapter": page.chapter_id == chapter.id,
                     "summary_html": markdown_summary_with_static_wiki_links(
                         page.summary, chapter.url_id, self.base_url
                     ),

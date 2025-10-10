@@ -37,7 +37,7 @@
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for page in pages %}
     <div class="col">
-      <div class="card h-100">
+      <div class="card h-100{% if page.updated_in_chapter %} border-primary{% endif %}">
         <div class="card-body">
           <h5 class="card-title">
             <a href="{{ base_url }}/wiki/{{ chapter_id }}/{{ page.slug }}/" class="text-decoration-none">{{ page.title }}</a>
