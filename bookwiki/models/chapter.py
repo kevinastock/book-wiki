@@ -21,6 +21,11 @@ class ChapterName:
     id: int
     name: list[str]
 
+    @property
+    def url_id(self) -> int:
+        """Return the 1-based identifier used in URLs."""
+        return self.id + 1
+
 
 @dataclass(frozen=True)
 class Chapter:
@@ -62,6 +67,11 @@ class Chapter:
             conversation_id=None,
             chapter_summary_page_id=None,
         )
+
+    @property
+    def url_id(self) -> int:
+        """Return the 1-based identifier used in URLs."""
+        return self.id + 1
 
     @staticmethod
     def get_latest_started_chapter(cursor: Cursor) -> "Chapter" | None:

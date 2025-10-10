@@ -25,11 +25,11 @@ def format_chapter_title(chapter: Chapter | ChapterName) -> str:
     """Format a chapter title from its name list."""
     if chapter.name:
         return " - ".join(chapter.name)
-    return f"Chapter {chapter.id}"
+    return f"Chapter {chapter.url_id}"
 
 
 def markdown_summary_with_static_wiki_links(
-    text: str | None, chapter_id: int, base_url: str = ""
+    text: str | None, chapter_url_id: int, base_url: str = ""
 ) -> str | None:
     """Convert Markdown summary to HTML with wiki links transformed to static URLs.
 
@@ -38,14 +38,15 @@ def markdown_summary_with_static_wiki_links(
 
     Args:
         text: The Markdown text to convert
-        chapter_id: Current chapter for generating wiki URLs
+        chapter_url_id: 1-based chapter identifier for generating wiki URLs
         base_url: Base URL to prepend to wiki links
 
     Returns:
-        HTML with wiki links transformed to {base_url}/wiki/{chapter_id}/{slug} format
+        HTML with wiki links transformed to
+        {base_url}/wiki/{chapter_url_id}/{slug} format
         and Bootstrap classes added to remove margins
     """
-    html = markdown_with_static_wiki_links(text, chapter_id, base_url)
+    html = markdown_with_static_wiki_links(text, chapter_url_id, base_url)
     if html:
         # Add mb-0 class to paragraph tags to remove bottom margin in Bootstrap layouts
         html = html.replace("<p>", '<p class="mb-0">')
@@ -53,17 +54,18 @@ def markdown_summary_with_static_wiki_links(
 
 
 def markdown_with_static_wiki_links(
-    text: str | None, chapter_id: int, base_url: str = ""
+    text: str | None, chapter_url_id: int, base_url: str = ""
 ) -> str | None:
     """Convert Markdown to HTML with wiki links transformed to static URLs.
 
     Args:
         text: The Markdown text to convert
-        chapter_id: Current chapter for generating wiki URLs
+        chapter_url_id: 1-based chapter identifier for generating wiki URLs
         base_url: Base URL to prepend to wiki links
 
     Returns:
-        HTML with wiki links transformed to {base_url}/wiki/{chapter_id}/{slug} format
+        HTML with wiki links transformed to
+        {base_url}/wiki/{chapter_url_id}/{slug} format
     """
     if not text:
         return ""
@@ -78,7 +80,9 @@ def markdown_with_static_wiki_links(
     transformed_text = text
     for link in wiki_links:
         original_link = f"[{link.display_text}]({link.target})"
-        new_link = f"[{link.display_text}]({base_url}/wiki/{chapter_id}/{link.slug})"
+        new_link = (
+            f"[{link.display_text}]({base_url}/wiki/{chapter_url_id}/{link.slug})"
+        )
         transformed_text = transformed_text.replace(original_link, new_link)
 
     # Convert to HTML using markdown
@@ -124,7 +128,7 @@ def get_latest_version_per_chapter(
         if chapter:
             versions.append(
                 {
-                    "chapter_id": row["chapter"],
+                    "chapter_id": chapter.url_id,
                     "chapter_title": format_chapter_title(chapter),
                 }
             )
@@ -222,9 +226,9 @@ class StaticSiteGenerator:
         for chapter in chapters:
             chapter_list.append(
                 {
-                    "id": chapter.id,
+                    "id": chapter.url_id,
                     "title": format_chapter_title(chapter),
-                    "url": f"{self.base_url}/wiki/{chapter.id}",
+                    "url": f"{self.base_url}/wiki/{chapter.url_id}",
                 }
             )
 
@@ -262,7 +266,7 @@ class StaticSiteGenerator:
                     "title": page.title,
                     "slug": page.slug,
                     "summary_html": markdown_summary_with_static_wiki_links(
-                        page.summary, chapter.id, self.base_url
+                        page.summary, chapter.url_id, self.base_url
                     ),
                 }
             )
@@ -275,10 +279,10 @@ class StaticSiteGenerator:
             chapter_summary_page = {
                 "title": summary_page.title,
                 "summary_html": markdown_summary_with_static_wiki_links(
-                    summary_page.summary, chapter.id, self.base_url
+                    summary_page.summary, chapter.url_id, self.base_url
                 ),
                 "body_html": markdown_with_static_wiki_links(
-                    summary_page.body, chapter.id, self.base_url
+                    summary_page.body, chapter.url_id, self.base_url
                 ),
                 "names": summary_page.names,
             }
@@ -288,15 +292,15 @@ class StaticSiteGenerator:
         for ch in all_chapters:
             chapters_nav.append(
                 {
-                    "id": ch.id,
+                    "id": ch.url_id,
                     "title": format_chapter_title(ch),
-                    "url": f"{self.base_url}/wiki/{ch.id}",
+                    "url": f"{self.base_url}/wiki/{ch.url_id}",
                 }
             )
 
         html = template.render(
             pages=pages,
-            chapter_id=chapter.id,
+            chapter_id=chapter.url_id,
             current_chapter_title=format_chapter_title(chapter),
             chapters=chapters_nav,
             site_title=self.site_title,
@@ -304,7 +308,7 @@ class StaticSiteGenerator:
             base_url=self.base_url,
         )
 
-        chapter_dir = self.output_dir / "wiki" / str(chapter.id)
+        chapter_dir = self.output_dir / "wiki" / str(chapter.url_id)
         chapter_dir.mkdir(parents=True, exist_ok=True)
         index_path = chapter_dir / "index.html"
         index_path.write_text(minify_html_content(html))
@@ -337,14 +341,14 @@ class StaticSiteGenerator:
             page_at_chapter = WikiPage.read_page_at(cursor, page.slug, ch.id)
             if page_at_chapter and page_at_chapter.title != "":
                 # Page exists - link to it
-                url = f"{self.base_url}/wiki/{ch.id}/{page.slug}"
+                url = f"{self.base_url}/wiki/{ch.url_id}/{page.slug}"
             else:
                 # Page doesn't exist or is deleted - link to chapter list
-                url = f"{self.base_url}/wiki/{ch.id}"
+                url = f"{self.base_url}/wiki/{ch.url_id}"
 
             chapters_nav.append(
                 {
-                    "id": ch.id,
+                    "id": ch.url_id,
                     "title": format_chapter_title(ch),
                     "url": url,
                 }
@@ -352,12 +356,12 @@ class StaticSiteGenerator:
 
         # Convert markdown body to HTML with static wiki links
         body_html = markdown_with_static_wiki_links(
-            page.body, chapter_id, self.base_url
+            page.body, chapter.url_id, self.base_url
         )
 
         # Convert markdown summary to HTML with static wiki links
         summary_html = markdown_summary_with_static_wiki_links(
-            page.summary, chapter_id, self.base_url
+            page.summary, chapter.url_id, self.base_url
         )
 
         html = template.render(
@@ -367,19 +371,19 @@ class StaticSiteGenerator:
                 "summary_html": summary_html,
                 "names": page.names,
                 "body_html": body_html,
-                "chapter_id": page.chapter_id,
+                "chapter_id": page.chapter_id + 1,
                 "chapter_title": format_chapter_title(page.chapter),
-                "first_chapter_id": first_chapter.id,
+                "first_chapter_id": first_chapter.url_id,
                 "first_chapter_title": format_chapter_title(first_chapter),
             },
-            chapter_id=chapter_id,
+            chapter_id=chapter.url_id,
             current_chapter_title=format_chapter_title(chapter),
             chapters=chapters_nav,
             site_title=self.site_title,
             base_url=self.base_url,
         )
 
-        page_dir = self.output_dir / "wiki" / str(chapter_id) / page.slug
+        page_dir = self.output_dir / "wiki" / str(chapter.url_id) / page.slug
         page_dir.mkdir(parents=True, exist_ok=True)
         page_path = page_dir / "index.html"
         page_path.write_text(minify_html_content(html))
@@ -414,14 +418,14 @@ class StaticSiteGenerator:
             page_at_chapter = WikiPage.read_page_at(cursor, slug, ch.id)
             if page_at_chapter and page_at_chapter.title != "":
                 # Page exists - link to its history
-                url = f"{self.base_url}/wiki/{ch.id}/{slug}/history"
+                url = f"{self.base_url}/wiki/{ch.url_id}/{slug}/history"
             else:
                 # Page doesn't exist or is deleted - link to chapter list
-                url = f"{self.base_url}/wiki/{ch.id}"
+                url = f"{self.base_url}/wiki/{ch.url_id}"
 
             chapters_nav.append(
                 {
-                    "id": ch.id,
+                    "id": ch.url_id,
                     "title": format_chapter_title(ch),
                     "url": url,
                 }
@@ -431,22 +435,24 @@ class StaticSiteGenerator:
             slug=slug,
             page_title=current_page.title,
             versions=versions,
-            chapter_id=chapter_id,
+            chapter_id=chapter.url_id,
             current_chapter_title=format_chapter_title(chapter),
             chapters=chapters_nav,
             site_title=self.site_title,
             base_url=self.base_url,
         )
 
-        history_dir = self.output_dir / "wiki" / str(chapter_id) / slug / "history"
+        history_dir = self.output_dir / "wiki" / str(chapter.url_id) / slug / "history"
         history_dir.mkdir(parents=True, exist_ok=True)
         history_path = history_dir / "index.html"
         history_path.write_text(minify_html_content(html))
 
     async def generate_chapter_search_index(self, chapter_id: int) -> None:
         """Generate Pagefind search index for a specific chapter."""
+        chapter_url_id = chapter_id + 1
+
         # Define the output path for this chapter's search index
-        search_output_path = self.output_dir / f"pagefind-{chapter_id}"
+        search_output_path = self.output_dir / f"pagefind-{chapter_url_id}"
 
         # Configure Pagefind to only index wiki pages for this chapter
         config = index.IndexConfig(
@@ -460,7 +466,14 @@ class StaticSiteGenerator:
 
         async with index.PagefindIndex(config=config) as pagefind_index:
             # Only index wiki page HTML files for this chapter
-            chapter_wiki_dir = self.output_dir / "wiki" / str(chapter_id)
+            chapter_wiki_dir = self.output_dir / "wiki" / str(chapter_url_id)
+
+            if not chapter_wiki_dir.exists():
+                logger.info(
+                    "Skipping search index for chapter %s (missing directory)",
+                    chapter_url_id,
+                )
+                return
 
             # Find all wiki page directories
             # (but exclude history directories and the chapter index)
@@ -472,10 +485,10 @@ class StaticSiteGenerator:
                         html_content = page_html.read_text(encoding="utf-8")
                         await pagefind_index.add_html_file(
                             content=html_content,
-                            url=f"{self.base_url}/wiki/{chapter_id}/{page_dir.name}/",
+                            url=f"{self.base_url}/wiki/{chapter_url_id}/{page_dir.name}/",
                         )
 
-            logger.info(f"Generated search index for chapter {chapter_id}")
+            logger.info(f"Generated search index for chapter {chapter_url_id}")
 
     async def generate_all_search_indexes(self, chapters: list[ChapterName]) -> None:
         """Generate search indexes for all chapters."""
@@ -494,9 +507,9 @@ class StaticSiteGenerator:
         for chapter in chapters:
             chapter_list.append(
                 {
-                    "id": chapter.id,
+                    "id": chapter.url_id,
                     "title": format_chapter_title(chapter),
-                    "url": f"{self.base_url}/wiki/{chapter.id}",
+                    "url": f"{self.base_url}/wiki/{chapter.url_id}",
                 }
             )
 
@@ -524,9 +537,9 @@ class StaticSiteGenerator:
         for ch in chapters:
             chapter_list.append(
                 {
-                    "id": ch.id,
+                    "id": ch.url_id,
                     "title": format_chapter_title(ch),
-                    "url": f"{self.base_url}/wiki/{ch.id}",
+                    "url": f"{self.base_url}/wiki/{ch.url_id}",
                 }
             )
 
@@ -541,7 +554,7 @@ class StaticSiteGenerator:
                     "title": page.title,
                     "slug": page.slug,
                     "summary_html": markdown_summary_with_static_wiki_links(
-                        page.summary, chapter.id, self.base_url
+                        page.summary, chapter.url_id, self.base_url
                     ),
                 }
             )
@@ -554,17 +567,17 @@ class StaticSiteGenerator:
             chapter_summary_page = {
                 "title": summary_page.title,
                 "summary_html": markdown_summary_with_static_wiki_links(
-                    summary_page.summary, chapter.id, self.base_url
+                    summary_page.summary, chapter.url_id, self.base_url
                 ),
                 "body_html": markdown_with_static_wiki_links(
-                    summary_page.body, chapter.id, self.base_url
+                    summary_page.body, chapter.url_id, self.base_url
                 ),
                 "names": summary_page.names,
             }
 
         html = template.render(
             pages=pages,
-            chapter_id=chapter.id,
+            chapter_id=chapter.url_id,
             current_chapter_title=format_chapter_title(chapter),
             chapters=chapter_list,
             site_title=self.site_title,
@@ -573,7 +586,7 @@ class StaticSiteGenerator:
             base_url=self.base_url,
         )
 
-        chapter_dir = self.output_dir / "wiki" / str(chapter.id)
+        chapter_dir = self.output_dir / "wiki" / str(chapter.url_id)
         chapter_dir.mkdir(parents=True, exist_ok=True)
         not_found_path = chapter_dir / "404.html"
         not_found_path.write_text(minify_html_content(html))
