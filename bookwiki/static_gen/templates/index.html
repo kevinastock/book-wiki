@@ -2,6 +2,8 @@
 
 {% block title %}{{ site_title }}{% endblock %}
 
+{% block chapter_selector %}{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-8 mt-4">
@@ -13,8 +15,26 @@
     </div>
 
     <h1 class="display-4 mb-4">{{ site_title }}</h1>
-    <p class="lead mb-5">A spoiler-free guide to <em>{{ content_name }}</em>. Select your <strong>last-read
-        chapter</strong> above.</p>
+    <p class="lead mb-4">A spoiler-free guide to <em>{{ content_name }}</em>. Select your <strong>last-read
+        chapter</strong> below.</p>
+
+    {% if chapters is defined and current_chapter_title is defined %}
+    <div class="dropdown mb-5">
+      <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+        data-bs-toggle="dropdown" data-bs-auto-close="outside">
+        {{ current_chapter_title }}
+      </button>
+      <ul class="dropdown-menu w-100">
+        <li class="px-3 py-2">
+          <input type="text" class="form-control" id="chapterSearch" placeholder="Search chapters..." autocomplete="off">
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        {% for chapter in chapters %}
+        <li><a class="dropdown-item" href="{{ chapter.url }}">{{ chapter.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
 
     <section class="mb-5">
       <h2 class="h4 mb-3">What this is</h2>
