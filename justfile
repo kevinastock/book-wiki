@@ -32,11 +32,11 @@ type-check:
 
 # Run tests with pytest
 test:
-    pytest tests/ >&2 || exit 2
+    OPENAI_API_KEY=dummy pytest tests/ >&2 || exit 2
 
 # Run tests with coverage
 test-cov:
-    pytest tests/ --cov=bookwiki >&2 || exit 2
+    OPENAI_API_KEY=dummy pytest tests/ --cov=bookwiki >&2 || exit 2
 
 # Start the web server
 run db="bookwiki.db" port="5000":
